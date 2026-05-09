@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.utils.response import success_response
+
 from app.core.database import get_db
 from app.core.security import (
     hash_password,
@@ -24,10 +26,7 @@ router = APIRouter(
     tags=["Authentication"]
 )
 
-@router.post(
-    "/register",
-    response_model=AuthResponse
-)
+@router.post("/register")
 async def register(
     payload: RegisterRequest,
     db: AsyncSession = Depends(get_db)
@@ -65,19 +64,19 @@ async def register(
         "sub": new_user.id
     })
 
-    return AuthResponse(
-        token=token,
-        user=UserResponse(
-            id=new_user.id,
-            name=new_user.name,
-            email=new_user.email
-        )
+    return success_response(
+        message="Register success",
+        data={
+            "token": token,
+            "user": UserResponse(
+                id=new_user.id,
+                name=new_user.name,
+                email=new_user.email
+            ).model_dump()
+        }
     )
 
-@router.post(
-    "/login",
-    response_model=AuthResponse
-)
+@router.post("/login")
 async def login(
     payload: LoginRequest,
     db: AsyncSession = Depends(get_db)
@@ -111,21 +110,27 @@ async def login(
         "sub": user.id
     })
 
-    return AuthResponse(
-        token=token,
-        user=UserResponse(
-            id=user.id,
-            name=user.name,
-            email=user.email
-        )
+    return success_response(
+        message="Login success",
+        data={
+            "token": token,
+            "user": UserResponse(
+                id=user.id,
+                name=user.name,
+                email=user.email
+            ).model_dump()
+        }
     )
 
 @router.get("/me")
 async def get_me(
     current_user: User = Depends(get_current_user)
 ):
-    return {
-        "id": current_user.id,
-        "name": current_user.name,
-        "email": current_user.email
-    }
+    return success_response(
+        message="Current user fetched",
+        data={
+            "id": current_user.id,
+            "name": current_user.name,
+            "email": current_user.email
+        }
+    )
