@@ -1,6 +1,4 @@
-from http.client import HTTPException
 import math
-
 from sqlalchemy import desc, func, select
 
 from app.models.generation import Generation
