@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic_settings import BaseSettings
 
 
@@ -15,6 +17,18 @@ class Settings(BaseSettings):
 
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-3-flash-preview"
+
+    CORS_ORIGINS: str = ""
+
+    @property
+    def cors_origins_list(self) -> List[str]:
+        if not self.CORS_ORIGINS:
+            return []
+
+        return [
+            origin.strip()
+            for origin in self.CORS_ORIGINS.split(",")
+        ]
 
     class Config:
         env_file = ".env"

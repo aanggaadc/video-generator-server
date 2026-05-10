@@ -22,7 +22,7 @@ from app.schemas.auth import (
 from app.api.deps import get_current_user
 
 router = APIRouter(
-    prefix="/api/auth",
+    prefix="/auth",
     tags=["Authentication"]
 )
 
