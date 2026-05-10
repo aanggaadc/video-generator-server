@@ -1,3 +1,4 @@
+from http.client import HTTPException
 import math
 
 from sqlalchemy import desc, func, select
@@ -50,3 +51,46 @@ async def get_user_history(
             "previous_page": page - 1 if page > 1 else None
         }
     }
+
+async def get_history_detail(
+    db,
+    user_id,
+    generation_id
+):
+    query = (
+        select(Generation)
+        .where(
+            Generation.id == generation_id,
+            Generation.user_id == user_id
+        )
+    )
+
+    result = await db.execute(query)
+
+    return result.scalar_one_or_none()
+
+async def delete_history(
+    db,
+    user_id,
+    generation_id
+):
+    query = (
+        select(Generation)
+        .where(
+            Generation.id == generation_id,
+            Generation.user_id == user_id
+        )
+    )
+
+    result = await db.execute(query)
+
+    generation = result.scalar_one_or_none()
+
+    if not generation:
+        return None
+
+    await db.delete(generation)
+
+    await db.commit()
+
+    return generation

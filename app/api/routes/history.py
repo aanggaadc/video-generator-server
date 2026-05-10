@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, Query
+from uuid import UUID
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
-from app.services.history_service import get_user_history
+from app.services.history_service import get_user_history, get_history_detail, delete_history
 from app.utils.response import success_response
 
 
@@ -31,4 +32,50 @@ async def history(
     return success_response(
         message="History fetched successfully",
         data=histories
+    )
+
+@router.get("/{generation_id}")
+async def history_detail(
+    generation_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    generation = await get_history_detail(
+        db=db,
+        user_id=current_user.id,
+        generation_id=generation_id
+    )
+
+    if not generation:
+        raise HTTPException(
+            status_code=404,
+            detail="Generation not found"
+        )
+
+    return success_response(
+        message="Generation detail fetched successfully",
+        data=generation
+    )
+
+@router.delete("/{generation_id}")
+async def remove_history(
+    generation_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    generation = await delete_history(
+        db=db,
+        user_id=current_user.id,
+        generation_id=generation_id
+    )
+
+    if not generation:
+        raise HTTPException(
+            status_code=404,
+            detail="Generation not found"
+        )
+
+    return success_response(
+        message="Generation deleted successfully",
+        data=None
     )
