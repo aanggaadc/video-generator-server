@@ -5,6 +5,7 @@ from starlette.exceptions import HTTPException
 from app.core.config import settings
 
 from app.api.routes.auth import router as auth_router
+from app.api.routes.video_generation import router as video_generation_router
 
 from app.core.exceptions import (
     http_exception_handler,
@@ -27,6 +28,7 @@ app.add_exception_handler(
 )
 
 app.include_router(auth_router)
+app.include_router(video_generation_router)
 
 @app.get("/")
 async def root():
