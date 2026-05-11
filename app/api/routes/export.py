@@ -17,7 +17,7 @@ from app.services.export_service import (
 )
 
 router = APIRouter(
-    prefix="/api/export",
+    prefix="/export",
     tags=["Export"],
 )
 
